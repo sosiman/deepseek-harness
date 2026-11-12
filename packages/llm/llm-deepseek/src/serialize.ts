@@ -158,12 +158,15 @@ export function serialize(
     ...options.temperature === undefined ? {} : { temperature: options.temperature },
     ...options.stop === undefined ? {} : { stop_sequences: options.stop },
     ...options.tools === undefined ? {} : {
-      tools: options.tools.map(tool => ({
-        name: tool.name,
-        description: tool.description,
-        input_schema: tool.parameters,
-        ...tool.deferLoading === true ? { defer_loading: true as const } : {},
-      })),
+      tools: (() => {
+        const allDeferred = options.tools.length > 0 && options.tools.every(tool => tool.deferLoading === true)
+        return options.tools.map(tool => ({
+          name: tool.name,
+          description: tool.description,
+          input_schema: tool.parameters,
+          ...(!allDeferred && tool.deferLoading === true ? { defer_loading: true as const } : {}),
+        }))
+      })(),
     },
   }
 }

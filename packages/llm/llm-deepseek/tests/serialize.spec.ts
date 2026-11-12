@@ -80,11 +80,12 @@ describe('Messages request conversion', () => {
     ])
   })
 
-  it('preserves an all-deferred list without synthesizing tools', () => {
+  it('omits defer_loading when all tools are deferred to satisfy DeepSeek API constraint', () => {
+    // DeepSeek API requires: "tools: at least one tool must have defer_loading=false. All tools cannot be deferred."
     const tools = [{ name: 'search', description: 'Search', parameters: {}, deferLoading: true as const }]
     const saved = JSON.stringify(tools)
     expect(body([user()], { tools }).tools).toEqual([
-      { name: 'search', description: 'Search', input_schema: {}, defer_loading: true },
+      { name: 'search', description: 'Search', input_schema: {} },
     ])
     expect(JSON.stringify(tools)).toBe(saved)
   })
